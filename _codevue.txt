@@ -11,6 +11,7 @@ public static class Program {
     int i=0;
     var wordList = new Dictionary<string,List<OrderableWord>>();
     using (StreamReader reader = new StreamReader(Console.OpenStandardInput())){
+    //using (StreamReader reader = new StreamReader(@"c:\temp\anagramlist.txt"))
 
       //collect input
         /*
@@ -42,7 +43,7 @@ public static class Program {
     }
       
      var outputData2 = outputData1
-      .Select(s=>new Tuple<int, string>(s.LexicographicalOrder, string.Join(" ", s.Select(s=>s.Word).ToList()))) //join anagram lists into space delineated strings, keep lex of first word
+      .Select(s=>new Tuple<int, string>(s[0].LexicographicalOrder, string.Join(" ", s.Select(s=>s.Word).ToList()))) //join anagram lists into space delineated strings, keep lex of first word
       .OrderBy(o=>o.Item1) //order remaining entries by lex of first word
       .Select(s=>s.Item2).ToList(); //convert to list of string lists
     
@@ -62,6 +63,8 @@ public static class Program {
   }
   
   private static string getAnagramBase(string word){
-    return string.Join("",word.Split("").Sort());
+    char[] characters = word.ToArray();
+    Array.Sort(characters);
+    return new string(characters);
   }
 }
