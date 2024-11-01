@@ -1,0 +1,67 @@
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+public static class Program {
+  static void Main() {
+    
+    
+    int i=0;
+    var wordList = new Dictionary<string,List<OrderableWord>>();
+    using (StreamReader reader = new StreamReader(Console.OpenStandardInput())){
+
+      //collect input
+        /*
+        The first line contains an integer N (1 ≤ N ≤ 10^4), representing the number of words.
+        The next N lines contain one word per line. Each word consists of lowercase English letters and has a length between 1 and 100.
+        */
+      _ = reader.ReadLine();
+
+
+      //collect words and order, group by anagram
+
+      while (!reader.EndOfStream) {
+        var word = new OrderableWord(reader.ReadLine(), i++);
+
+        //get anagram
+        string anagramBase = getAnagramBase(word.Word);
+        if(!wordList.ContainsKey(anagramBase)){
+          wordList[anagramBase] = new List<OrderableWord>();
+        }
+        wordList[anagramBase].Add(word);
+      }
+    }
+    
+    /*Each group of anagrams found should be printed as a space-separated list in alphabetical order, 
+    and the groups should be printed in lexicographical order based on the first word in each group.*/
+    var outputData1 = wordList.Where(w=>w.Value.Count()>1).Select(s=>s.Value).ToList();     //eliminate entries with 1 match
+    foreach(var wl in outputData1){
+      wl.Sort(delegate(OrderableWord o1, OrderableWord o2) { return o1.Word.CompareTo(o2.Word); });
+    }
+      
+     var outputData2 = outputData1
+      .Select(s=>new Tuple<int, string>(s.LexicographicalOrder, string.Join(" ", s.Select(s=>s.Word).ToList()))) //join anagram lists into space delineated strings, keep lex of first word
+      .OrderBy(o=>o.Item1) //order remaining entries by lex of first word
+      .Select(s=>s.Item2).ToList(); //convert to list of string lists
+    
+    foreach(string anagramList in outputData2)
+      Console.WriteLine(anagramList);
+               
+  }
+  
+  
+  private class OrderableWord{
+    public OrderableWord(string word, int lexicographicalOrder){
+      Word = word;
+      LexicographicalOrder = lexicographicalOrder;
+    }
+    public string Word;
+    public int LexicographicalOrder;
+  }
+  
+  private static string getAnagramBase(string word){
+    return string.Join("",word.Split("").Sort());
+  }
+}
